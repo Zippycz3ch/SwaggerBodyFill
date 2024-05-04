@@ -93,11 +93,9 @@ button:hover {
 
 /* Differentiating Non-Valid from Valid Outputs */
 .output-non-valid {
-  background-color: #ffb3b3; /* Light red for non-valid outputs */
   border: 2px solid red;
 }
 
 .output-valid {
-  background-color: #b3ffcc; /* Light green for valid outputs */
   border: 2px solid green;
 }
