@@ -2,40 +2,36 @@
 import React, { useState } from 'react';
 import { generateBodies } from './generateBodies';
 import './App.css';
+import examples from './examples';
+import ReactJson from 'react-json-view';
 
 function App() {
   const [input, setInput] = useState('');
   const [outputs, setOutputs] = useState([]);
-  const [copiedIndex, setCopiedIndex] = useState(null); // State to track copied index
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
   const handleGenerate = () => {
+    let jsonData;
     try {
-      const parsedInput = JSON.parse(input);
-      const generatedOutputs = generateBodies(parsedInput);
+      jsonData = input ? JSON.parse(input) : JSON.parse(examples[0]);
+      const generatedOutputs = generateBodies(jsonData);
       setOutputs(generatedOutputs);
-      setCopiedIndex(null); // Reset copied index on new generation
+      setCopiedIndex(null);
     } catch (e) {
       alert('Invalid JSON input. Please check your JSON format.');
       console.error('Parsing error:', e);
     }
   };
 
-  const handleCopyToClipboard = (jsonText, index) => {
-    navigator.clipboard.writeText(jsonText)
-      .then(() => {
-        setCopiedIndex(index); // Set copied index to current
-        setTimeout(() => setCopiedIndex(null), 2000); // Reset after 2000ms (2 seconds)
-      })
-      .catch(err => console.error('Failed to copy text: ', err));
-  };
-
   return (
     <div className="app">
       <h1>Swagger Body Fill</h1>
       <textarea
-        placeholder="Enter JSON here..."
+        placeholder={examples[0]}
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onFocus={(e) => e.target.placeholder = ''}
+        onBlur={(e) => { if (!e.target.value) e.target.placeholder = examples[0]; }}
         rows={10}
         cols={50}
       />
@@ -43,10 +39,19 @@ function App() {
       <div className="output-grid">
         {outputs.map((output, index) => (
           <div className="output-container" key={index}>
-            <pre>{JSON.stringify(output, null, 2)}</pre>
+            <ReactJson 
+              src={output} 
+              theme="monokai" 
+              collapsed={false} 
+              enableClipboard={false}
+            />
             <button 
               className={`copy-button ${copiedIndex === index ? 'copied' : ''}`}
-              onClick={() => handleCopyToClipboard(JSON.stringify(output, null, 2), index)}
+              onClick={() => {
+                navigator.clipboard.writeText(JSON.stringify(output, null, 2));
+                setCopiedIndex(index);
+                setTimeout(() => setCopiedIndex(null), 2000);
+              }}
             >
               {copiedIndex === index ? 'Copied!' : 'Copy'}
             </button>
