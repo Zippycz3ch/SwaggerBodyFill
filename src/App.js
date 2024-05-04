@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState } from 'react';
 import { generateBodies } from './generateBodies';
 import './App.css';
@@ -11,15 +10,17 @@ function App() {
   const [copiedIndex, setCopiedIndex] = useState(null);
 
   const handleGenerate = () => {
-    let jsonData;
     try {
-      jsonData = input ? JSON.parse(input) : JSON.parse(examples[0]);
+      const jsonData = input ? JSON.parse(input) : JSON.parse(examples[0]);
       const generatedOutputs = generateBodies(jsonData);
+      if (generatedOutputs.length !== 6) {
+        console.error("Expected 6 outputs, but got:", generatedOutputs.length);
+        // Optionally handle the error more visibly here
+      }
       setOutputs(generatedOutputs);
-      setCopiedIndex(null);
     } catch (e) {
-      alert('Invalid JSON input. Please check your JSON format.');
       console.error('Parsing error:', e);
+      // Optionally add user-visible error handling here
     }
   };
 
@@ -38,7 +39,7 @@ function App() {
       <button onClick={handleGenerate}>Generate</button>
       <div className="output-grid">
         {outputs.map((output, index) => (
-          <div className="output-container" key={index}>
+          <div className={`output-container output-type-${index}`} key={index}>
             <ReactJson 
               src={output} 
               theme="monokai" 
