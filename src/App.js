@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { generateBodies } from './generateBodies';
+import { nonValidGenerateBodies } from './nonvalidgenerateBodies';
 import './App.css';
 import examples from './examples';
 import ReactJson from 'react-json-view';
@@ -12,15 +13,12 @@ function App() {
   const handleGenerate = () => {
     try {
       const jsonData = input ? JSON.parse(input) : JSON.parse(examples[0]);
-      const generatedOutputs = generateBodies(jsonData);
-      if (generatedOutputs.length !== 6) {
-        console.error("Expected 6 outputs, but got:", generatedOutputs.length);
-        // Optionally handle the error more visibly here
-      }
-      setOutputs(generatedOutputs);
+      const validOutputs = generateBodies(jsonData);
+      const nonValidOutput1 = nonValidGenerateBodies(jsonData);
+      const nonValidOutput2 = nonValidGenerateBodies(jsonData);
+      setOutputs([...validOutputs, nonValidOutput1, nonValidOutput2]);
     } catch (e) {
       console.error('Parsing error:', e);
-      // Optionally add user-visible error handling here
     }
   };
 
@@ -36,10 +34,10 @@ function App() {
         rows={10}
         cols={50}
       />
-      <button onClick={handleGenerate}>Generate</button>
+      <button onClick={handleGenerate}>Generate Data</button>
       <div className="output-grid">
         {outputs.map((output, index) => (
-          <div className={`output-container output-type-${index}`} key={index}>
+          <div className={`output-container ${index >= outputs.length - 2 ? 'output-non-valid' : 'output-valid'}`} key={index}>
             <ReactJson 
               src={output} 
               theme="monokai" 
