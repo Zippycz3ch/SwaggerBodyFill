@@ -31,13 +31,12 @@ textarea {
   line-height: 1.6;
   height: 200px; /* Fixed height set to 200px */
   overflow-y: auto; /* Allows scrolling vertically */
-  scrollbar-width: none; /* For Firefox */
 }
 
-textarea::-webkit-scrollbar {
+textarea::-webkit-scrollbar,
+.output-container::-webkit-scrollbar {
   display: none; /* For Chrome, Safari, and Opera */
 }
-
 
 button {
   padding: 10px 20px;
@@ -72,8 +71,6 @@ button:hover {
   }
 }
 
-
-
 /* Output Container Styling */
 .output-container {
   background-color: #272822;
@@ -82,6 +79,9 @@ button:hover {
   padding: 20px;
   position: relative;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  max-height: 250px; /* Set maximum height to 250px */
+  overflow-y: auto; /* Allows scrolling vertically */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
 }
 
 /* Copy Button Styling */
@@ -116,12 +116,7 @@ button:hover {
   border: 2px solid green;
 }
 
-/* Hide scrollbar but allow scrolling */
-textarea {
-  overflow-y: auto;  /* Vertical scrolling only */
-  scrollbar-width: none; /* For Firefox */
-}
-
-textarea::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and Opera */
+.button-container {
+  display: flex;
+  justify-content: start;
 }

@@ -1,22 +1,38 @@
 import { faker } from '@faker-js/faker';
+import { parse, isValid, format } from 'date-fns';
 
 export function generateBodies(template) {
-  // Helper function to generate a random lorem word
-  const generateWord = () => faker.lorem.word();
+  // Function to detect date format and generate a new date in the same format
+  const handleDate = (dateStr) => {
+    // List of potential date formats
+    const formats = ['yyyy-MM-dd', 'MM/dd/yyyy', 'dd-MM-yyyy', 'yyyyMMdd'];
+    for (let fmt of formats) {
+      const parsedDate = parse(dateStr, fmt, new Date());
+      if (isValid(parsedDate)) {
+        // If valid, generate a new date in the same format
+        return format(faker.date.soon(90, new Date()), fmt);
+      }
+    }
+    return dateStr; // Return original if no valid format found
+  };
 
-  // Recursive function to generate values based on the original structure, maintaining array lengths
-  const generateValue = (value, isFirstOutput = false) => {
+  // Recursive function to generate values based on the original structure
+  const generateValue = (value, key = '', isFirstOutput = false) => {
     if (typeof value === 'string') {
-      // Replace any string with a random word
-      return generateWord();
+      // Check if the key suggests it's a date field
+      if (key.toLowerCase().includes('date')) {
+        return handleDate(value);
+      } else {
+        return faker.lorem.word();
+      }
     } else if (Array.isArray(value)) {
-      // For the first output, maintain the array length; vary it for others
+      // Determine the length of the array: same as input for the first output, random otherwise
       const length = isFirstOutput ? value.length : faker.datatype.number({ min: 1, max: 10 });
-      return Array.from({ length }, () => generateWord());
+      return Array.from({ length }, () => generateValue(value[0], key, isFirstOutput)); // Apply recursively to arrays
     } else if (typeof value === 'object' && value !== null) {
       // Recurse over each key in the object
-      return Object.keys(value).reduce((obj, key) => {
-        obj[key] = generateValue(value[key], isFirstOutput);
+      return Object.keys(value).reduce((obj, currentKey) => {
+        obj[currentKey] = generateValue(value[currentKey], currentKey, isFirstOutput);
         return obj;
       }, {});
     }
@@ -25,11 +41,8 @@ export function generateBodies(template) {
 
   // Generate an array of bodies, ensuring the first one keeps the same array length
   try {
-    // First output with original array lengths
-    const firstOutput = generateValue(template, true);
-
-    // Other outputs with varied array lengths
-    const otherOutputs = Array.from({ length: 3 }, () => generateValue(template));
+    const firstOutput = generateValue(template, '', true); // First output with original array lengths
+    const otherOutputs = Array.from({ length: 3 }, () => generateValue(template)); // Other outputs with varied array lengths
     return [firstOutput, ...otherOutputs];
   } catch (error) {
     console.error("Failed to generate bodies:", error);
@@ -39,12 +52,11 @@ export function generateBodies(template) {
 
 // Example usage
 const input = {
-  "city": "Chicago",
-  "attractions": [
-    "Willis Tower",
-    "Navy Pier",
-    "Millennium Park"
-  ]
+  "name": "Alice",
+  "age": 25,
+  "city": "New York",
+  "birthDate": "1997-08-20",
+  "photoUrl": "https://example.com/alice.jpg"
 };
 
-console.log(generateBodies(input)); // Generates the first output with exact array length and others varied
+console.log(generateBodies(input));
