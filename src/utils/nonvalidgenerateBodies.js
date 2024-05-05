@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 
 // Function to generate non-valid data bodies
 export function nonValidGenerateBodies(template) {
-  // Function to generate values of the incorrect type intentionally
+  // Recursive function to generate values of the incorrect type intentionally
   const generateIncorrectValue = (value) => {
     switch (typeof value) {
       case 'number':
@@ -14,9 +14,17 @@ export function nonValidGenerateBodies(template) {
         return faker.lorem.sentence(); // String instead of boolean
       case 'object':
         if (Array.isArray(value)) {
-          return {}; // Object instead of array
+          // Create an array with incorrect data type entries
+          return Array.from({ length: value.length }, () => {
+            // Assuming the array elements are of similar type as the first element if present
+            return value.length > 0 ? generateIncorrectValue(value[0]) : faker.lorem.word();
+          });
         } else {
-          return []; // Array instead of object
+          // Create an object with incorrect data type properties
+          return Object.keys(value).reduce((acc, key) => {
+            acc[key] = generateIncorrectValue(value[key]);
+            return acc;
+          }, {});
         }
       default:
         return null; // For unexpected types
@@ -29,4 +37,3 @@ export function nonValidGenerateBodies(template) {
     return obj;
   }, {});
 }
-

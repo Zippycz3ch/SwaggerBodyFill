@@ -29,7 +29,15 @@ textarea {
   border-radius: 10px;
   resize: none;
   line-height: 1.6;
+  height: 200px; /* Fixed height set to 200px */
+  overflow-y: auto; /* Allows scrolling vertically */
+  scrollbar-width: none; /* For Firefox */
 }
+
+textarea::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
 
 button {
   padding: 10px 20px;
@@ -51,12 +59,20 @@ button:hover {
 /* Output Grid Layout */
 .output-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns, flexible layout */
+  grid-template-columns: repeat(3, 1fr); /* Default to 3 columns for larger screens */
   grid-gap: 20px;
-  width: 100%;
+  width: calc(100% - 40px); /* Adjust width based on the container's padding */
   max-width: 1200px;
   margin-top: 10px;
 }
+
+@media (max-width: 700px) {
+  .output-grid {
+    grid-template-columns: 1fr; /* Single column for mobile screens */
+  }
+}
+
+
 
 /* Output Container Styling */
 .output-container {
@@ -98,4 +114,14 @@ button:hover {
 
 .output-valid {
   border: 2px solid green;
+}
+
+/* Hide scrollbar but allow scrolling */
+textarea {
+  overflow-y: auto;  /* Vertical scrolling only */
+  scrollbar-width: none; /* For Firefox */
+}
+
+textarea::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
