@@ -96,6 +96,7 @@ button:hover {
   border: none;
   border-radius: 5px;
   transition: background-color 0.5s;
+  z-index: 10; /* Ensures the button is above the scrollable content */
 }
 
 .copy-button:hover,
@@ -119,4 +120,15 @@ button:hover {
 .button-container {
   display: flex;
   justify-content: start;
+}
+
+.scrollable-content {
+  max-height: 210px; /* Adjust this height as necessary */
+  overflow-y: auto; /* Only the vertical scroll is allowed */
+  position: relative;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollable-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }

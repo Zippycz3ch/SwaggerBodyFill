@@ -15,13 +15,15 @@ const OutputGrid = ({ outputs, copiedIndex, setCopiedIndex }) => {
     <div className="output-grid">
       {outputs.map((output, index) => (
         <div key={index} className={`output-container ${output.type === 'valid' ? 'output-valid' : 'output-non-valid'}`}>
-          <ReactJson src={output.data} theme="monokai" collapsed={false} enableClipboard={false} />
           <button
             className={`copy-button ${copiedIndex === index ? 'copied' : ''}`}
             onClick={() => handleCopy(output.data, index)}
           >
             {copiedIndex === index ? 'Copied!' : 'Copy'}
           </button>
+          <div className="scrollable-content">
+            <ReactJson src={output.data} theme="monokai" collapsed={false} enableClipboard={false} />
+          </div>
         </div>
       ))}
     </div>
