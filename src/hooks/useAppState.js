@@ -8,12 +8,24 @@ export function useAppState() {
     input: '',
     outputs: [],
     error: null,
-    copiedIndex: null,  // This state will manage which item's copy button was clicked
+    copiedIndex: null,
   });
 
-  const [placeholder, setPlaceholder] = useState(getRandomExample());
+  const placeholder = getRandomExample(); 
+
+  const updateInput = (input) => {
+    setState(prevState => ({
+      ...prevState,
+      input
+    }));
+  };
 
   const handleGenerate = (input) => {
+    if (!input.trim()) {
+      setState(prevState => ({ ...prevState, error: 'Input cannot be empty.' }));
+      return;
+    }
+
     try {
       const jsonData = JSON.parse(input);
       const validOutputs = generateBodies(jsonData).map(body => ({ type: 'valid', data: body }));
@@ -22,11 +34,11 @@ export function useAppState() {
       setState({
         ...state,
         input,
-        outputs: window.innerWidth <= 600 ? [...validOutputs.slice(0, 2), nonValidOutputs[0]] : [...validOutputs, ...nonValidOutputs],
+        outputs: [...validOutputs, ...nonValidOutputs],
         error: null,
       });
     } catch (e) {
-      setState({ ...state, error: `Parsing error: ${e.message}` });
+      setState(prevState => ({ ...prevState, error: `Invalid JSON: ${e.message}` }));
     }
   };
 
@@ -35,13 +47,11 @@ export function useAppState() {
     handleGenerate(randomExample);
   };
 
-  // Function to handle setting the copied index
   const setCopiedIndex = (index) => {
     setState(prevState => ({
       ...prevState,
       copiedIndex: index
     }));
-    // Automatically reset copiedIndex after 2 seconds
     setTimeout(() => {
       setState(prevState => ({
         ...prevState,
@@ -52,11 +62,10 @@ export function useAppState() {
 
   return {
     state,
-    setState,
     placeholder,
-    setPlaceholder,
     handleGenerate,
     handleRandom,
-    setCopiedIndex  // Expose the method to update the copied index
+    updateInput,
+    setCopiedIndex
   };
 }

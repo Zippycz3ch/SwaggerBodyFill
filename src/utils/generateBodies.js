@@ -4,49 +4,66 @@ import { parse, isValid, format } from 'date-fns';
 export function generateBodies(template) {
   // Function to detect date format and generate a new date in the same format
   const handleDate = (dateStr) => {
-    // List of potential date formats
     const formats = ['yyyy-MM-dd', 'MM/dd/yyyy', 'dd-MM-yyyy', 'yyyyMMdd'];
     for (let fmt of formats) {
       const parsedDate = parse(dateStr, fmt, new Date());
       if (isValid(parsedDate)) {
-        // If valid, generate a new date in the same format
-        return format(faker.date.soon(90, new Date()), fmt);
+        return format(faker.date.soon(90), fmt);
       }
     }
-    return dateStr; // Return original if no valid format found
+    return dateStr;
+  };
+
+  // Function to randomly mutate numeric (integers and floats) and string values
+  const mutateValue = (value, key) => {
+    if (typeof value === 'number') {
+      let newValue;
+      if (Number.isInteger(value)) {
+        do {
+          newValue = faker.datatype.number({ min: 1, max: 100 });
+        } while (newValue === value);
+      } else {
+        do {
+          newValue = parseFloat((faker.datatype.number({ min: 1, max: 100 }) + Math.random()).toFixed(2));
+        } while (newValue === value);
+      }
+      return newValue;
+    } else if (typeof value === 'string' && !key.toLowerCase().includes('date')) {
+      return faker.lorem.word();
+    }
+    return value; // return unchanged value if it's a date type to preserve format
   };
 
   // Recursive function to generate values based on the original structure
   const generateValue = (value, key = '', isFirstOutput = false) => {
     if (typeof value === 'string') {
-      // Check if the key suggests it's a date field
       if (key.toLowerCase().includes('date')) {
         return handleDate(value);
       } else {
-        return faker.lorem.word();
+        return mutateValue(value, key);
       }
     } else if (Array.isArray(value)) {
-      // Determine the length of the array: same as input for the first output, random otherwise
-      const length = isFirstOutput ? value.length : faker.datatype.number({ min: 1, max: 10 });
-      return Array.from({ length }, () => generateValue(value[0], key, isFirstOutput)); // Apply recursively to arrays
+      const length = isFirstOutput ? value.length : faker.datatype.number({ min: 1, max: value.length * 2 });
+      return Array.from({ length }, () => generateValue(value[0], key, isFirstOutput));
     } else if (typeof value === 'object' && value !== null) {
-      // Recurse over each key in the object
       return Object.keys(value).reduce((obj, currentKey) => {
         obj[currentKey] = generateValue(value[currentKey], currentKey, isFirstOutput);
         return obj;
       }, {});
+    } else if (typeof value === 'number') {
+      return mutateValue(value, key);
     }
-    return value; // Return as is for any other type
+    return value;
   };
 
-  // Generate an array of bodies, ensuring the first one keeps the same array length
+  // Generate output where the first output maintains the original structure and count of elements
   try {
-    const firstOutput = generateValue(template, '', true); // First output with original array lengths
-    const otherOutputs = Array.from({ length: 3 }, () => generateValue(template)); // Other outputs with varied array lengths
+    const firstOutput = generateValue(template, '', true);
+    const otherOutputs = Array.from({ length: 3 }, () => generateValue(template));
     return [firstOutput, ...otherOutputs];
   } catch (error) {
     console.error("Failed to generate bodies:", error);
-    return [];  // Return an empty array in case of error
+    return [];
   }
 }
 
@@ -56,6 +73,7 @@ const input = {
   "age": 25,
   "city": "New York",
   "birthDate": "1997-08-20",
+  "salary": 55.75,  // Example of a float value
   "photoUrl": "https://example.com/alice.jpg"
 };
 

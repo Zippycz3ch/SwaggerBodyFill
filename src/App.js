@@ -8,9 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDice } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
-  const { state, placeholder, handleGenerate, handleRandom, setCopiedIndex } = useAppState();
+  const { state, placeholder, handleGenerate, handleRandom, setCopiedIndex, updateInput } = useAppState();
 
-  // A new function to handle click on Generate with proper fallback
+  // Function to handle click on Generate
   const handleGenerateClick = () => {
     const input = state.input || placeholder;
     handleGenerate(input);
@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="app">
       <Header error={state.error} />
-      <TextareaInput state={state} placeholder={placeholder} handleGenerate={handleGenerateClick} />
+      <TextareaInput state={state} placeholder={placeholder} handleInputChange={updateInput} />
       <div className="button-container">
         <button onClick={handleGenerateClick}>Generate</button>
         <button onClick={handleRandom} aria-label="Randomize">
